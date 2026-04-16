@@ -88,12 +88,7 @@
             <input v-model.trim.number="union_speed" placeholder="%" type="number" @input="weapon_speed_cal" class="bg-transparent text-zinc-200 w-full">
           </td>
 
-          <td>
-            <select v-model.trim.number="pet" @change="weapon_speed_cal" class="bg-transparent text-zinc-200">
-              <option value="0.06">6%</option>
-              <option value="0">0%</option>
-            </select>
-          </td>
+      
 
           <td>
             <select v-model.trim.number="quicken" @change="weapon_speed_cal" class="bg-transparent text-zinc-200">
@@ -102,7 +97,13 @@
               <option value="1.5">Lv.5</option>
             </select>
           </td>
-
+    <td>
+            <select v-model.trim.number="pet" @change="weapon_speed_cal" class="bg-transparent text-zinc-200">
+              <option value="0.06">6%</option>
+              <option value="0">0%</option>
+            </select>
+          </td>
+          
           <td>
             <select v-model.trim.number="fury" @change="weapon_speed_cal" class="bg-transparent text-zinc-200">
               <option value="1">Lv.0</option>
