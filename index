@@ -1,0 +1,227 @@
+<template>
+  <div v-if="isOpened == true" class="black-bg" @click="isOpened=false">
+    <div class="white-bg text-zinc-900">
+      <h4 class="font-bold mb-2">Công thức tính tốc độ tấn công</h4>
+      <p class="text-sm">Tốc độ cuối = <br>
+        Vũ khí * (1 - Stat - Tính cách - Bí pháp - Liên minh - Pet - Trang bị) / (1 + Tăng Fury + Tăng Quicken)</p>
+      <hr class="my-2">
+      <p class="text-xs font-mono">{{ final_speed }} =
+        {{ weapon_speed }} * (1 - {{ stat }} - {{ personality }} - {{ secret / 100 }} - {{ union_speed / 100 }} -
+        {{ pet / 100 }} - {{ equip_speed / 100 }}) / (1 + {{ fury - 1 }} + {{ quicken - 1 }})</p>
+    </div>
+  </div>
+
+  <div class="p-4">
+    <a class="hits" href="#">
+      <img alt="Hits" src="https://hits.sh/lubiksss.github.io/evil_hunter_tycoon.svg?view=today-total"/>
+    </a>
+    <h2 class="text-2xl font-bold text-pink-500 mb-4">MÁY TÍNH TỐC ĐỘ (EHT)</h2>
+  </div>
+
+  <table class="border-zinc-700">
+    <thead>
+      <tr class="bg-zinc-800 text-pink-500">
+        <th v-for="item in items" :key="item" class="text-xs py-2 border-zinc-700">
+          {{ item }}
+        </th>
+      </tr>
+    </thead>
+    <tbody class="bg-zinc-900">
+      <tr>
+        <!-- Nghề -->
+        <td>
+          <select v-model.trim.number="job" @change="change_job" class="bg-transparent text-zinc-200">
+            <option disabled value="">Chọn</option>
+            <option value="0">Berserker</option>
+            <option value="1">Sorcerer</option>
+            <option value="2">Ranger</option>
+            <option value="3">Paladin</option>
+          </select>
+        </td>
+
+        <!-- Vũ khí -->
+        <td v-show="job===''"></td>
+        <td v-show="job===0">
+          <select v-model.trim.number="weapon_speed" @change="weapon_speed_cal" class="bg-transparent text-zinc-200">
+            <option value="2">Ancient/Primal</option>
+            <option value="2.2">Valhalla</option>
+          </select>
+        </td>
+        <td v-show="job===1">
+          <select v-model.trim.number="weapon_speed" @change="weapon_speed_cal" class="bg-transparent text-zinc-200">
+            <option value="2.2">Ancient/Primal</option>
+            <option value="2.3">Immortal</option>
+          </select>
+        </td>
+        <td v-show="job===2">
+          <select v-model.trim.number="weapon_speed" @change="weapon_speed_cal" class="bg-transparent text-zinc-200">
+            <option value="1.8">Ancient/Primal</option>
+            <option value="2">Vijaya</option>
+          </select>
+        </td>
+        <td v-show="job===3">
+          <select v-model.trim.number="weapon_speed" @change="weapon_speed_cal" class="bg-transparent text-zinc-200">
+            <option value="2.4">Ancient/Primal</option>
+            <option value="2.5">Mjolnir</option>
+          </select>
+        </td>
+
+        <!-- Stat -->
+        <td>
+          <select v-model.trim.number="stat" @change="weapon_speed_cal" class="bg-transparent text-zinc-200">
+            <option value="0">Xám</option>
+            <option value="0.1">Xanh lam</option>
+            <option value="0.2">Cam</option>
+            <option value="0.3">Tím</option>
+          </select>
+        </td>
+
+        <!-- Tính cách -->
+        <td>
+          <select v-model.trim.number="personality" @change="weapon_speed_cal" class="bg-transparent text-zinc-200">
+            <option value="0">Không</option>
+            <option value="-0.1">Chậm chạp</option>
+            <option value="0.07">Anh hùng</option>
+            <option value="0.1">Nhanh nhẹn</option>
+          </select>
+        </td>
+
+        <!-- Bí pháp -->
+        <td>
+          <input v-model.trim.number="secret" placeholder="%" type="number" @input="weapon_speed_cal" class="bg-transparent text-zinc-200 w-full">
+        </td>
+
+        <!-- Guild -->
+        <td>
+          <input v-model.trim.number="union_speed" placeholder="%" type="number" @input="weapon_speed_cal" class="bg-transparent text-zinc-200 w-full">
+        </td>
+
+        <!-- Pet (Mới thêm) -->
+        <td>
+          <input v-model.trim.number="pet" placeholder="%" type="number" @input="weapon_speed_cal" class="bg-transparent text-zinc-200 w-full">
+        </td>
+
+        <!-- Quicken -->
+        <td>
+          <select v-model.trim.number="quicken" @change="weapon_speed_cal" class="bg-transparent text-zinc-200">
+            <option value="1">Lv.0</option>
+            <option value="1.1">Lv.1</option>
+            <option value="1.5">Lv.5</option>
+          </select>
+        </td>
+
+        <!-- Fury -->
+        <td>
+          <select v-model.trim.number="fury" @change="weapon_speed_cal" class="bg-transparent text-zinc-200">
+            <option value="1">Lv.0</option>
+            <option value="4">Lv.10</option>
+            <option value="4.18">Lv.11 (Rune 1)</option>
+            <option value="4.54">Lv.13 (Rune 3)</option>
+          </select>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="equip my-8 text-xl">
+    <span class="text-zinc-400">Rune & Trang bị cần: </span>
+    <span class="text-pink-500 font-bold">{{ equip_speed }}%</span>
+    <input v-model.trim.number="equip_speed" type="hidden" @input="final_speed_cal">
+  </div>
+
+  <div class="final my-8">
+    <span class="text-zinc-400">Tốc độ cuối mục tiêu: </span>
+    <input v-model.trim.number="final_speed" step="0.01" type="number" @input="weapon_speed_cal" class="bg-zinc-800 text-amber-500 font-black rounded px-2 w-24">
+    <br>
+    <button @click="isOpened=true" class="mt-4 bg-zinc-700 px-4 py-1 rounded-full text-xs">Xem công thức</button>
+  </div>
+
+  <div class="text-left p-6 bg-zinc-900 rounded-3xl border border-zinc-800 mx-4">
+    <h3 class="text-pink-500 font-bold mb-2">⭐ Hướng dẫn</h3>
+    <ul class="text-sm text-zinc-400 space-y-1">
+      <li>1. Chọn Nghề nghiệp và loại Vũ khí đang dùng.</li>
+      <li>2. Chọn màu Stat Speed và Tính cách của Thợ săn.</li>
+      <li>3. Nhập % từ Bí pháp, Buff Liên minh (Guild) và Pet.</li>
+      <li>4. Máy tính sẽ tự trả về số % tốc độ ông cần kiếm thêm từ trang bị để đạt mốc 0.25.</li>
+    </ul>
+  </div>
+
+  <div class="maker mt-10 text-right pr-4 text-xs text-zinc-600">
+    Việt hóa bởi EHT Manager
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'App',
+  data() {
+    return {
+      job: '', 
+      weapon_speed: '', 
+      stat: '', 
+      personality: '', 
+      secret: '',
+      union_speed: '', 
+      pet: 6,           // ← Pet mặc định 6%
+      quicken: '', 
+      fury: '', 
+      equip_speed: '',
+      final_speed: 0.25, 
+      isOpened: false,
+      items: ['Nghề', 'Vũ khí', 'Stat', 'Tính cách', 'Bí pháp', 'Guild', 'Pet', 'Quicken', 'Fury']  // ← Thêm Pet
+    };
+  },
+  methods: {
+    change_job: function () { 
+      this.job_init(this.job); 
+    },
+    job_init: function (job) {
+      this.final_speed = 0.25;
+      if (job === 0) { 
+        this.weapon_speed = 2; 
+        this.quicken = 1; 
+        this.fury = 4; 
+      }
+      else if (job === 1) { 
+        this.weapon_speed = 2.2; 
+        this.quicken = 1.5; 
+        this.fury = 1; 
+      }
+      else if (job === 2) { 
+        this.weapon_speed = 1.8; 
+        this.quicken = 1.5; 
+        this.fury = 1; 
+      }
+      else if (job === 3) { 
+        this.weapon_speed = 2.4; 
+        this.quicken = 1.5; 
+        this.fury = 1; 
+      }
+      this.weapon_speed_cal();
+    },
+    weapon_speed_cal: function () {
+      let equip_speed = (1.0 - this.stat - this.personality - this.secret / 100 
+                        - this.union_speed / 100 - this.pet / 100 
+                        - this.final_speed / this.weapon_speed * (1.0 + this.fury - 1.0 + this.quicken - 1.0)) * 100;
+      
+      this.equip_speed = equip_speed < 0 ? 0 : equip_speed.toFixed(3);
+    },
+    final_speed_cal: function () {
+      let final_speed = this.weapon_speed * (1.0 - this.stat - this.personality - this.secret / 100 
+                        - this.union_speed / 100 - this.pet / 100 - this.equip_speed / 100)
+                        / (1.0 + this.fury - 1.0 + this.quicken - 1.0);
+      
+      this.final_speed = final_speed < 0.25 ? 0.250 : final_speed.toFixed(3);
+    }
+  }
+}
+</script>
+
+<style scoped>
+/* Tui đã lược bớt CSS thừa để ông dễ quản lý */
+table { width: 100%; border-collapse: collapse; }
+th, td { border: 1px solid #3f3f46; padding: 8px; text-align: center; }
+select, input { outline: none; border: none; }
+.black-bg { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 50; display: flex; align-items: center; justify-content: center; }
+.white-bg { background: white; padding: 20px; border-radius: 1.5rem; max-width: 90%; }
+</style>
