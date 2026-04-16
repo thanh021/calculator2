@@ -7,121 +7,176 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2/dist/tailwind.min.css">
   <style>
-    body { 
-      background: #18181b; 
-      color: #e4e4e7; 
-      font-family: system-ui, sans-serif; 
-      padding: 16px;
-    }
-    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-    th, td { border: 1px solid #3f3f46; padding: 10px; text-align: center; }
-    select, input { 
-      background: #27272a; 
-      color: #e4e4e7; 
-      border: 1px solid #52525b; 
-      border-radius: 4px; 
-      padding: 6px; 
-      width: 100%; 
+    body { background: #18181b; color: #e4e4e7; font-family: system-ui, -apple-system, sans-serif; }
+    .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; min-width: 900px; }
+    th, td { border: 1px solid #3f3f46; padding: 12px 8px; text-align: center; vertical-align: middle; }
+    th { background: #27272a; color: #ec4899; font-weight: 600; }
+    select, input {
+      background: #27272a;
+      color: #e4e4e7;
+      border: 1px solid #52525b;
+      border-radius: 8px;
+      padding: 10px 12px;
+      width: 100%;
+      font-size: 15px;
       outline: none;
     }
-    .black-bg { 
-      position: fixed; top:0; left:0; width:100%; height:100%; 
-      background: rgba(0,0,0,0.85); z-index: 50; 
-      display: flex; align-items: center; justify-content: center; 
+    select:focus, input:focus { border-color: #ec4899; }
+    .black-bg {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .white-bg { 
-      background: white; color: #18181b; padding: 25px; 
-      border-radius: 16px; max-width: 90%; 
+    .white-bg {
+      background: white;
+      color: #18181b;
+      padding: 28px;
+      border-radius: 20px;
+      max-width: 92%;
+      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
     }
-    button { background: #27272a; padding: 8px 16px; border-radius: 9999px; font-size: 12px; }
+    button { transition: all 0.2s; }
+    button:hover { transform: scale(1.05); }
   </style>
 </head>
-<body>
+<body class="p-4 md:p-8 max-w-7xl mx-auto">
   <div id="app">
-    <div class="p-4">
-      <h2 class="text-3xl font-bold text-pink-500 mb-6 text-center">MÁY TÍNH TỐC ĐỘ (EHT)</h2>
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl md:text-5xl font-bold text-pink-500 tracking-tighter">
+        MÁY TÍNH TỐC ĐỘ (EHT)
+      </h1>
+      <p class="text-zinc-400 mt-2 text-sm md:text-base">Tính % Rune & Trang bị cần để đạt 0.25</p>
     </div>
 
-    <table class="border-zinc-700">
-      <thead>
-        <tr class="bg-zinc-800 text-pink-500">
-          <th v-for="item in items" :key="item" class="text-xs py-2">{{ item }}</th>
-        </tr>
-      </thead>
-      <tbody class="bg-zinc-900">
-        <tr>
-          <td>
-            <select v-model="job" @change="change_job" class="bg-zinc-800">
-              <option value="">Chọn nghề</option>
-              <option value="0">Berserker</option>
-              <option value="1">Sorcerer</option>
-              <option value="2">Ranger</option>
-              <option value="3">Paladin</option>
-            </select>
-          </td>
-          <td>
-            <select v-model.number="weapon_speed" @change="calculate" class="bg-zinc-800">
-              <option value="2">Ancient/Primal (Bers)</option>
-              <option value="2.2">Valhalla (Bers)</option>
-              <!-- Bạn có thể bổ sung đầy đủ các option khác sau -->
-            </select>
-          </td>
-          <td>
-            <select v-model.number="stat" @change="calculate" class="bg-zinc-800">
-              <option value="0">Xám</option>
-              <option value="0.1">Xanh lam</option>
-              <option value="0.2">Cam</option>
-              <option value="0.3">Tím</option>
-            </select>
-          </td>
-          <td>
-            <select v-model.number="personality" @change="calculate" class="bg-zinc-800">
-              <option value="0">Không</option>
-              <option value="-0.1">Chậm chạp</option>
-              <option value="0.07">Anh hùng</option>
-              <option value="0.1">Nhanh nhẹn</option>
-            </select>
-          </td>
-          <td><input v-model.number="secret" placeholder="Bí pháp %" type="number" @input="calculate" class="bg-zinc-800"></td>
-          <td><input v-model.number="union_speed" placeholder="Guild %" type="number" @input="calculate" class="bg-zinc-800"></td>
-          <td><input v-model.number="pet" placeholder="Pet %" type="number" @input="calculate" class="bg-zinc-800" value="6"></td>
-          <td>
-            <select v-model.number="quicken" @change="calculate" class="bg-zinc-800">
-              <option value="1">Lv.0</option>
-              <option value="1.1">Lv.1</option>
-              <option value="1.5">Lv.5</option>
-            </select>
-          </td>
-          <td>
-            <select v-model.number="fury" @change="calculate" class="bg-zinc-800">
-              <option value="1">Lv.0</option>
-              <option value="4">Lv.10</option>
-            </select>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <!-- Bảng -->
+    <div class="table-container bg-zinc-900 rounded-3xl p-4 shadow-2xl border border-zinc-800">
+      <table>
+        <thead>
+          <tr>
+            <th v-for="item in items" :key="item" class="text-xs uppercase tracking-widest">{{ item }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <!-- Nghề -->
+            <td>
+              <select v-model="job" @change="change_job" class="text-base">
+                <option value="">Chọn nghề</option>
+                <option value="0">Berserker</option>
+                <option value="1">Sorcerer</option>
+                <option value="2">Ranger</option>
+                <option value="3">Paladin</option>
+              </select>
+            </td>
 
-    <div class="my-8 text-center text-xl">
-      <span class="text-zinc-400">Rune & Trang bị cần: </span>
-      <span class="text-pink-500 font-bold">{{ equip_speed }}%</span>
+            <!-- Vũ khí -->
+            <td>
+              <select v-model.number="weapon_speed" @change="calculate" class="text-base">
+                <option value="2">Berserker - Ancient/Primal</option>
+                <option value="2.2">Berserker - Valhalla</option>
+                <option value="2.2">Sorcerer - Ancient/Primal</option>
+                <option value="2.3">Sorcerer - Immortal</option>
+                <option value="1.8">Ranger - Ancient/Primal</option>
+                <option value="2">Ranger - Vijaya</option>
+                <option value="2.4">Paladin - Ancient/Primal</option>
+                <option value="2.5">Paladin - Mjolnir</option>
+              </select>
+            </td>
+
+            <!-- Stat -->
+            <td>
+              <select v-model.number="stat" @change="calculate" class="text-base">
+                <option value="0">Xám (0%)</option>
+                <option value="0.1">Xanh lam (10%)</option>
+                <option value="0.2">Cam (20%)</option>
+                <option value="0.3">Tím (30%)</option>
+              </select>
+            </td>
+
+            <!-- Tính cách -->
+            <td>
+              <select v-model.number="personality" @change="calculate" class="text-base">
+                <option value="0">Không</option>
+                <option value="-0.1">Chậm chạp (-10%)</option>
+                <option value="0.07">Anh hùng (7%)</option>
+                <option value="0.1">Nhanh nhẹn (10%)</option>
+              </select>
+            </td>
+
+            <!-- Bí pháp -->
+            <td><input v-model.number="secret" placeholder="%" type="number" @input="calculate" class="text-base"></td>
+
+            <!-- Guild -->
+            <td><input v-model.number="union_speed" placeholder="%" type="number" @input="calculate" class="text-base"></td>
+
+            <!-- Pet (chỉ 0 hoặc 6) -->
+            <td>
+              <select v-model.number="pet" @change="calculate" class="text-base">
+                <option value="0">Không Pet (0%)</option>
+                <option value="6">Có Pet (6%)</option>
+              </select>
+            </td>
+
+            <!-- Quicken -->
+            <td>
+              <select v-model.number="quicken" @change="calculate" class="text-base">
+                <option value="1">Lv.0</option>
+                <option value="1.1">Lv.1</option>
+                <option value="1.5">Lv.5</option>
+              </select>
+            </td>
+
+            <!-- Fury -->
+            <td>
+              <select v-model.number="fury" @change="calculate" class="text-base">
+                <option value="1">Lv.0</option>
+                <option value="4">Lv.10</option>
+                <option value="4.18">Lv.11 (Rune 1)</option>
+                <option value="4.54">Lv.13 (Rune 3)</option>
+              </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="my-8 text-center">
-      <span class="text-zinc-400">Tốc độ cuối mục tiêu: </span>
-      <input v-model.number="final_speed" type="number" step="0.01" class="bg-zinc-800 text-amber-500 font-bold w-24 text-center">
+    <!-- Kết quả -->
+    <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-zinc-900 rounded-3xl p-6 text-center border border-zinc-800">
+        <div class="text-zinc-400 text-sm">Rune & Trang bị cần</div>
+        <div class="text-5xl font-black text-pink-500 mt-2">{{ equip_speed }}%</div>
+      </div>
+
+      <div class="bg-zinc-900 rounded-3xl p-6 text-center border border-zinc-800">
+        <div class="text-zinc-400 text-sm">Tốc độ cuối mục tiêu</div>
+        <input v-model.number="final_speed" type="number" step="0.01" 
+               class="text-5xl font-black text-amber-400 bg-transparent text-center w-full focus:outline-none">
+      </div>
     </div>
 
-    <button @click="isOpened = true" class="mx-auto block bg-zinc-700 px-6 py-2 rounded-full text-sm mt-4">
-      Xem công thức
+    <button @click="isOpened = true" 
+            class="mx-auto mt-8 block bg-gradient-to-r from-pink-500 to-purple-500 text-white px-8 py-4 rounded-3xl text-lg font-medium shadow-lg">
+      Xem công thức tính
     </button>
 
-    <!-- Popup công thức -->
+    <!-- Popup -->
     <div v-if="isOpened" class="black-bg" @click.self="isOpened = false">
       <div class="white-bg">
-        <h4 class="font-bold mb-3">Công thức tính tốc độ tấn công</h4>
-        <p class="text-sm">Tốc độ cuối = Vũ khí × (1 - Stat - Tính cách - Bí pháp - Guild - Pet - Trang bị) / (1 + Fury + Quicken)</p>
+        <h4 class="font-bold text-2xl mb-4">Công thức tính tốc độ tấn công</h4>
+        <p class="text-lg leading-relaxed">
+          Tốc độ cuối = Vũ khí × (1 − Stat − Tính cách − Bí pháp − Guild − Pet − Trang bị) / (1 + Fury + Quicken)
+        </p>
+        <p class="text-xs text-zinc-400 mt-6 text-center">Nhấn ra ngoài để đóng</p>
       </div>
+    </div>
+
+    <div class="text-center text-zinc-500 text-xs mt-12">
+      Việt hóa bởi EHT Manager • GitHub Pages
     </div>
   </div>
 
@@ -136,7 +191,7 @@
           personality: 0,
           secret: 0,
           union_speed: 0,
-          pet: 6,
+          pet: 6,                    // mặc định có Pet
           quicken: 1.5,
           fury: 4,
           equip_speed: 0,
@@ -148,7 +203,7 @@
       methods: {
         calculate() {
           const denom = 1 + (this.fury - 1) + (this.quicken - 1);
-          const reduction = this.stat + this.personality + this.secret/100 + this.union_speed/100 + this.pet/100;
+          const reduction = this.stat + this.personality + (this.secret/100) + (this.union_speed/100) + (this.pet/100);
           const needed = (1 - reduction - this.final_speed / this.weapon_speed * denom) * 100;
           this.equip_speed = Math.max(0, needed.toFixed(2));
         },
