@@ -7,23 +7,122 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2/dist/tailwind.min.css">
   <style>
-    body { background: #18181b; color: #e4e4e7; font-family: system-ui; }
-    table { width: 100%; border-collapse: collapse; }
+    body { 
+      background: #18181b; 
+      color: #e4e4e7; 
+      font-family: system-ui, sans-serif; 
+      padding: 16px;
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
     th, td { border: 1px solid #3f3f46; padding: 10px; text-align: center; }
-    select, input { background: transparent; color: #e4e4e7; border: none; outline: none; width: 100%; }
-    .black-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50; display: flex; align-items: center; justify-content: center; }
-    .white-bg { background: white; color: #18181b; padding: 25px; border-radius: 16px; max-width: 90%; }
+    select, input { 
+      background: #27272a; 
+      color: #e4e4e7; 
+      border: 1px solid #52525b; 
+      border-radius: 4px; 
+      padding: 6px; 
+      width: 100%; 
+      outline: none;
+    }
+    .black-bg { 
+      position: fixed; top:0; left:0; width:100%; height:100%; 
+      background: rgba(0,0,0,0.85); z-index: 50; 
+      display: flex; align-items: center; justify-content: center; 
+    }
+    .white-bg { 
+      background: white; color: #18181b; padding: 25px; 
+      border-radius: 16px; max-width: 90%; 
+    }
+    button { background: #27272a; padding: 8px 16px; border-radius: 9999px; font-size: 12px; }
   </style>
 </head>
-<body class="p-4">
+<body>
   <div id="app">
-    <!-- Toàn bộ code template của bạn sẽ được paste ở đây -->
-    <!-- Mình sẽ viết đầy đủ nếu bạn muốn, nhưng để ngắn gọn trước: -->
+    <div class="p-4">
+      <h2 class="text-3xl font-bold text-pink-500 mb-6 text-center">MÁY TÍNH TỐC ĐỘ (EHT)</h2>
+    </div>
 
-    <h2 class="text-3xl font-bold text-pink-500 mb-6 text-center">MÁY TÍNH TỐC ĐỘ (EHT)</h2>
+    <table class="border-zinc-700">
+      <thead>
+        <tr class="bg-zinc-800 text-pink-500">
+          <th v-for="item in items" :key="item" class="text-xs py-2">{{ item }}</th>
+        </tr>
+      </thead>
+      <tbody class="bg-zinc-900">
+        <tr>
+          <td>
+            <select v-model="job" @change="change_job" class="bg-zinc-800">
+              <option value="">Chọn nghề</option>
+              <option value="0">Berserker</option>
+              <option value="1">Sorcerer</option>
+              <option value="2">Ranger</option>
+              <option value="3">Paladin</option>
+            </select>
+          </td>
+          <td>
+            <select v-model.number="weapon_speed" @change="calculate" class="bg-zinc-800">
+              <option value="2">Ancient/Primal (Bers)</option>
+              <option value="2.2">Valhalla (Bers)</option>
+              <!-- Bạn có thể bổ sung đầy đủ các option khác sau -->
+            </select>
+          </td>
+          <td>
+            <select v-model.number="stat" @change="calculate" class="bg-zinc-800">
+              <option value="0">Xám</option>
+              <option value="0.1">Xanh lam</option>
+              <option value="0.2">Cam</option>
+              <option value="0.3">Tím</option>
+            </select>
+          </td>
+          <td>
+            <select v-model.number="personality" @change="calculate" class="bg-zinc-800">
+              <option value="0">Không</option>
+              <option value="-0.1">Chậm chạp</option>
+              <option value="0.07">Anh hùng</option>
+              <option value="0.1">Nhanh nhẹn</option>
+            </select>
+          </td>
+          <td><input v-model.number="secret" placeholder="Bí pháp %" type="number" @input="calculate" class="bg-zinc-800"></td>
+          <td><input v-model.number="union_speed" placeholder="Guild %" type="number" @input="calculate" class="bg-zinc-800"></td>
+          <td><input v-model.number="pet" placeholder="Pet %" type="number" @input="calculate" class="bg-zinc-800" value="6"></td>
+          <td>
+            <select v-model.number="quicken" @change="calculate" class="bg-zinc-800">
+              <option value="1">Lv.0</option>
+              <option value="1.1">Lv.1</option>
+              <option value="1.5">Lv.5</option>
+            </select>
+          </td>
+          <td>
+            <select v-model.number="fury" @change="calculate" class="bg-zinc-800">
+              <option value="1">Lv.0</option>
+              <option value="4">Lv.10</option>
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-    <!-- Nếu bạn muốn, gửi lại toàn bộ <template> cũ, mình sẽ chuyển sang Vue 3 CDN đầy đủ cho bạn luôn -->
+    <div class="my-8 text-center text-xl">
+      <span class="text-zinc-400">Rune & Trang bị cần: </span>
+      <span class="text-pink-500 font-bold">{{ equip_speed }}%</span>
+    </div>
 
+    <div class="my-8 text-center">
+      <span class="text-zinc-400">Tốc độ cuối mục tiêu: </span>
+      <input v-model.number="final_speed" type="number" step="0.01" class="bg-zinc-800 text-amber-500 font-bold w-24 text-center">
+    </div>
+
+    <button @click="isOpened = true" class="mx-auto block bg-zinc-700 px-6 py-2 rounded-full text-sm mt-4">
+      Xem công thức
+    </button>
+
+    <!-- Popup công thức -->
+    <div v-if="isOpened" class="black-bg" @click.self="isOpened = false">
+      <div class="white-bg">
+        <h4 class="font-bold mb-3">Công thức tính tốc độ tấn công</h4>
+        <p class="text-sm">Tốc độ cuối = Vũ khí × (1 - Stat - Tính cách - Bí pháp - Guild - Pet - Trang bị) / (1 + Fury + Quicken)</p>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -31,15 +130,39 @@
     createApp({
       data() {
         return {
-          job: '', weapon_speed: 2, stat: 0, personality: 0, secret: 0,
-          union_speed: 0, pet: 6, quicken: 1.5, fury: 4,
-          equip_speed: 0, final_speed: 0.25, isOpened: false,
+          job: '0',
+          weapon_speed: 2,
+          stat: 0,
+          personality: 0,
+          secret: 0,
+          union_speed: 0,
+          pet: 6,
+          quicken: 1.5,
+          fury: 4,
+          equip_speed: 0,
+          final_speed: 0.25,
+          isOpened: false,
           items: ['Nghề', 'Vũ khí', 'Stat', 'Tính cách', 'Bí pháp', 'Guild', 'Pet', 'Quicken', 'Fury']
         }
       },
       methods: {
-        // Copy các methods weapon_speed_cal, job_init... của bạn vào đây
-        // Mình có thể viết đầy đủ nếu bạn cần
+        calculate() {
+          const denom = 1 + (this.fury - 1) + (this.quicken - 1);
+          const reduction = this.stat + this.personality + this.secret/100 + this.union_speed/100 + this.pet/100;
+          const needed = (1 - reduction - this.final_speed / this.weapon_speed * denom) * 100;
+          this.equip_speed = Math.max(0, needed.toFixed(2));
+        },
+        change_job() {
+          if (this.job == 0) { this.weapon_speed = 2; this.quicken = 1; this.fury = 4; }
+          else if (this.job == 1) { this.weapon_speed = 2.2; this.quicken = 1.5; this.fury = 1; }
+          else if (this.job == 2) { this.weapon_speed = 1.8; this.quicken = 1.5; this.fury = 1; }
+          else if (this.job == 3) { this.weapon_speed = 2.4; this.quicken = 1.5; this.fury = 1; }
+          this.calculate();
+        }
+      },
+      mounted() {
+        this.change_job();
+        this.calculate();
       }
     }).mount('#app')
   </script>
